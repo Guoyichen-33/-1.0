@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>学伴 · 学习工作台</title>
+<style>
+:root{
+  --bg:#f5f7fb; --panel:#fff; --text:#20283a; --muted:#7b8497;
+  --line:#e8ebf2; --primary:#6257e8; --primary-soft:#efedff;
+  --teal:#1ea995; --orange:#f2a44a; --pink:#e97b9a; --shadow:0 8px 30px rgba(35,43,78,.06);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.app{display:flex;min-height:100vh}
+.sidebar{position:sticky;top:0;height:100vh;overflow-y:auto;width:236px;background:#fff;border-right:1px solid var(--line);padding:27px 16px;display:flex;flex-direction:column;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:11px;padding:0 10px 30px}
+.logo{width:39px;height:39px;border-radius:13px;background:linear-gradient(135deg,#766cff,#5147d7);display:grid;place-items:center;color:white;font-weight:800;font-size:20px;box-shadow:0 7px 15px #6257e833}
+.brand h1{font-size:19px;margin:0;letter-spacing:.3px}.brand small{display:block;font-size:11px;color:var(--muted);margin-top:3px}
+.nav-label{font-size:11px;color:#a0a7b7;letter-spacing:1.3px;padding:8px 13px 10px}
+.nav{display:flex;align-items:center;gap:12px;padding:12px 13px;margin:3px 0;border-radius:12px;color:#727b8e;font-size:14px;border:0;background:transparent;text-align:left;width:100%}
+.nav .ico{width:20px;text-align:center;font-size:17px}
+.nav.active{background:var(--primary-soft);color:var(--primary);font-weight:650}
+.sidebar-bottom{margin-top:auto;border-radius:16px;background:#f7f6ff;padding:16px}
+.sidebar-bottom strong{font-size:13px}.sidebar-bottom p{font-size:12px;line-height:1.7;color:var(--muted);margin:7px 0 12px}
+.small-btn{border:0;background:#fff;color:var(--primary);padding:8px 10px;border-radius:9px;font-size:12px;font-weight:650}
+.main{flex:1;min-width:0;padding:28px 34px 38px;max-width:1600px;margin:0 auto;width:100%}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:28px}
+.greeting h2{margin:0;font-size:25px;letter-spacing:-.5px}.greeting p{margin:7px 0 0;color:var(--muted);font-size:13px}
+.top-actions{display:flex;align-items:center;gap:12px}
+.mode-switch{display:flex;background:#eceef5;padding:4px;border-radius:12px}
+.mode-switch button{border:0;background:transparent;color:#777f92;padding:9px 13px;border-radius:9px;font-size:12px}
+.mode-switch button.active{background:#fff;color:var(--primary);box-shadow:0 2px 8px #20283a0c;font-weight:700}
+.avatar{width:39px;height:39px;display:grid;place-items:center;background:#ffe8d8;border-radius:50%;font-size:19px}
+.grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(285px,.9fr);gap:22px;align-items:start}
+.left-col,.right-col{display:flex;flex-direction:column;gap:22px;min-width:0}
+.card{background:var(--panel);border:1px solid #edf0f5;border-radius:19px;padding:22px;box-shadow:var(--shadow)}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px}
+.card-head h3{font-size:16px;margin:0}.card-head p{font-size:12px;color:var(--muted);margin:5px 0 0}
+.text-btn{border:0;background:transparent;color:var(--primary);font-size:12px;font-weight:650;padding:5px}
+.hero{background:linear-gradient(115deg,#6157e8,#8477ff);color:#fff;position:relative;overflow:hidden;border:0;padding:26px 27px}
+.hero:after{content:"";position:absolute;width:220px;height:220px;border:1px solid #ffffff25;border-radius:50%;right:-54px;top:-95px;box-shadow:0 0 0 25px #ffffff0b,0 0 0 52px #ffffff08}
+.hero .eyebrow{font-size:11px;letter-spacing:1.3px;opacity:.8}
+.hero h3{font-size:23px;margin:10px 0 8px}.hero p{font-size:13px;line-height:1.8;max-width:460px;color:#f1efff;margin:0 0 20px}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap}
+.hero-btn{border:0;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:700;background:#fff;color:var(--primary)}
+.hero-btn.ghost{background:#ffffff20;color:white;border:1px solid #ffffff4d}
+.hero-art{position:absolute;right:45px;bottom:20px;font-size:62px;opacity:.92;transform:rotate(-8deg)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.stat{padding:16px;border:1px solid var(--line);border-radius:15px;background:#fff}
+.stat-top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:12px}
+.stat-icon{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;font-size:15px}
+.stat strong{display:block;font-size:25px;margin:11px 0 5px;letter-spacing:-.5px}
+.stat small{font-size:11px;color:var(--muted)}
+.stat small em{font-style:normal;color:var(--teal);font-weight:700}
+.schedule-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:17px;flex-wrap:wrap}
+.week-switch{display:flex;gap:7px;align-items:center;color:var(--muted);font-size:12px}
+.week-switch button{border:1px solid var(--line);background:#fff;border-radius:8px;width:30px;height:30px;color:#7a8295}
+.schedule-toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:-3px 0 12px}
+.schedule-legend{font-size:11px;color:var(--muted)}
+.schedule-scroll{overflow-x:auto;padding-bottom:5px}
+.schedule-board{min-width:760px;display:grid;grid-template-columns:54px repeat(7,minmax(88px,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);background:#fff}
+.schedule-corner,.schedule-day-head{height:49px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--line);border-bottom:1px solid var(--line);font-size:11px;color:var(--muted);background:#fafbfe}
+.schedule-day-head.today{color:var(--primary);font-weight:800;background:#f3f1ff}
+.schedule-time-col{position:relative;background:#fafbfe;border-right:1px solid var(--line)}
+.schedule-hour-label{height:48px;position:relative;top:-7px;text-align:center;font-size:10px;color:#9ba3b3}
+.schedule-day-col{position:relative;height:720px;border-right:1px solid var(--line);background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 47px,#edf0f5 47px,#edf0f5 48px);cursor:crosshair}
+.schedule-day-col:hover{background-color:#fcfbff}
+.schedule-course{position:absolute;left:3px;right:3px;border:0;border-radius:8px;padding:6px 7px;text-align:left;overflow:hidden;line-height:1.35;z-index:2;min-height:25px;box-shadow:0 2px 6px #22222208}
+.schedule-course strong{display:block;font-size:11px;margin-bottom:3px;overflow-wrap:anywhere}.schedule-course small{font-size:10px;opacity:.85;display:block;overflow-wrap:anywhere}
+.schedule-course .course-tools{display:flex;gap:4px;margin-top:4px}.schedule-course .course-tools button{border:1px solid currentColor;background:#ffffff80;color:inherit;border-radius:5px;font-size:9px;padding:2px 5px}
+.c-purple{background:#efedff;color:#5d52d6}.c-green{background:#e4f7f1;color:#198d7d}.c-orange{background:#fff0df;color:#bb792b}.c-pink{background:#ffebf1;color:#c65c7d}.c-blue{background:#e7f2ff;color:#3c7fc2}
+.schedule-course:hover{filter:brightness(.97);outline:1px solid currentColor}
+.schedule-foot{display:flex;gap:13px;flex-wrap:wrap;margin-top:15px;color:var(--muted);font-size:10px}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px}
+.course-modal-backdrop{display:none;position:fixed;inset:0;background:#18203366;z-index:100;align-items:center;justify-content:center;padding:18px}
+.course-modal-backdrop.show{display:flex}
+.course-modal{width:min(560px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:20px;padding:23px;box-shadow:0 20px 70px #10172a30}
+.course-modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.course-modal-head h3{margin:0;font-size:19px}.modal-close{border:0;background:#f2f3f8;border-radius:9px;width:34px;height:34px;font-size:20px;color:#687184}
+.course-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.form-field{display:flex;flex-direction:column;gap:7px;min-width:0}.form-field.full{grid-column:1/-1}.form-field label{font-size:12px;color:#626b7d;font-weight:650}.form-field input,.form-field select,.form-field textarea{width:100%;min-width:0;border:1px solid #dfe3ed;border-radius:10px;padding:11px 12px;background:#fff;color:var(--text);outline:none}.form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:#a9a2ff;box-shadow:0 0 0 3px #6257e812}.color-options{display:flex;gap:9px;flex-wrap:wrap}.color-choice{width:28px;height:28px;border-radius:9px;border:2px solid transparent}.color-choice.selected{outline:2px solid var(--primary);outline-offset:2px}.modal-actions{display:flex;justify-content:space-between;gap:10px;margin-top:20px;flex-wrap:wrap}.modal-actions-right{display:flex;gap:8px;margin-left:auto}
+
+.task-list{display:flex;flex-direction:column;gap:13px}
+.task{display:flex;align-items:center;gap:11px}
+.check{width:18px;height:18px;border:1.5px solid #d7dbe6;border-radius:6px;background:white;flex-shrink:0}
+.check.done{background:var(--primary);border-color:var(--primary);color:white;font-size:12px}
+.task-text{flex:1;min-width:0}.task-text strong{font-size:12px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.task-text small{font-size:10px;color:var(--muted);display:block;margin-top:4px}
+.pill{padding:5px 8px;border-radius:7px;font-size:10px;background:#fff0df;color:#bd7a2b;white-space:nowrap}
+.pill.purple{background:#efedff;color:var(--primary)}.pill.green{background:#e4f7f1;color:#198d7d}
+.focus-card{background:#fff;border:1px solid #edf0f5}
+.focus-body{text-align:center;padding:3px 0 0}
+.focus-sub{color:var(--muted);font-size:12px}
+.timer{width:174px;height:174px;border-radius:50%;border:8px solid #eeecff;box-shadow:inset 0 0 0 1px #fff;display:flex;align-items:center;justify-content:center;flex-direction:column;margin:20px auto 18px;position:relative}
+.timer:before{content:"";position:absolute;inset:-8px;border-radius:50%;border:8px solid transparent;border-top-color:var(--primary);border-right-color:var(--primary);transform:rotate(10deg)}
+.timer strong{font-size:36px;letter-spacing:-1px}.timer span{font-size:11px;color:var(--muted);margin-top:5px}
+.timer-controls{display:flex;justify-content:center;gap:9px}
+.primary-btn{border:0;background:var(--primary);color:#fff;border-radius:10px;padding:11px 19px;font-size:12px;font-weight:700;box-shadow:0 6px 14px #6257e82a}
+.secondary-btn{border:1px solid var(--line);background:#fff;color:#697286;border-radius:10px;padding:10px 14px;font-size:12px}
+.focus-modes{display:flex;justify-content:center;gap:6px;margin-top:15px}
+.focus-modes button{border:0;background:#f6f7fb;color:var(--muted);font-size:10px;padding:7px 9px;border-radius:7px}
+.focus-modes button.active{background:var(--primary-soft);color:var(--primary);font-weight:700}
+.quick-links{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.quick{display:flex;gap:10px;align-items:center;border:1px solid var(--line);border-radius:13px;padding:13px;background:#fff;text-align:left}
+.quick .qico{width:35px;height:35px;display:grid;place-items:center;border-radius:10px;background:#f1efff;font-size:17px}
+.quick strong{display:block;font-size:12px}.quick small{display:block;font-size:10px;color:var(--muted);margin-top:4px}
+.course-page{display:none}.course-page.show{display:block}.dashboard.hide{display:none}
+.course-banner{padding:24px;border-radius:17px;background:linear-gradient(120deg,#edebff,#f7f6ff);display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.course-banner h2{font-size:23px;margin:9px 0 6px}.course-banner p{color:var(--muted);font-size:12px;margin:0}
+.course-symbol{width:60px;height:60px;border-radius:18px;background:#fff;display:grid;place-items:center;font-size:29px;box-shadow:var(--shadow)}
+.course-tabs{display:flex;gap:7px;border-bottom:1px solid var(--line);margin-bottom:18px;overflow:auto}
+.course-tabs button{border:0;background:transparent;padding:12px 14px;color:var(--muted);font-size:12px;white-space:nowrap;border-bottom:2px solid transparent}
+.course-tabs button.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:700}
+.note-area{width:100%;min-height:220px;resize:vertical;border:1px solid var(--line);border-radius:13px;padding:16px;outline:none;line-height:1.8;font-size:13px;color:var(--text)}
+.note-area:focus{border-color:#b9b3ff;box-shadow:0 0 0 3px #6257e812}
+.note-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px}
+.muted{font-size:11px;color:var(--muted)}
+.material-box{border:1px dashed #d8d9e9;background:#fafaff;padding:24px;text-align:center;border-radius:13px}
+.material-box .upload-ico{font-size:28px}.material-box p{font-size:12px;color:var(--muted)}
+.material-list{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.material-item{display:flex;align-items:center;gap:10px;padding:11px;border:1px solid var(--line);border-radius:10px;font-size:12px}
+.material-item span:last-child{margin-left:auto;color:var(--muted);font-size:10px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#20283a;color:#fff;padding:12px 18px;border-radius:11px;font-size:12px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .25s;z-index:10}
+.toast.show{opacity:1}
+.file-preview-backdrop{display:none;position:fixed;inset:0;background:#111827b8;z-index:300;align-items:center;justify-content:center;padding:12px}
+.file-preview-backdrop.show{display:flex}
+.file-preview-panel{width:min(1100px,100%);height:min(90vh,900px);background:#fff;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 80px #0004}
+.file-preview-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line);min-width:0}
+.file-preview-head strong{flex:1;overflow-wrap:anywhere;font-size:13px}.file-preview-body{flex:1;min-height:0;background:#f4f5f8}.file-preview-body iframe,.file-preview-body img{width:100%;height:100%;border:0;object-fit:contain;background:#fff}.file-preview-body pre{height:100%;overflow:auto;white-space:pre-wrap;padding:20px;margin:0;font-size:14px;background:#fff}
+
+.nav-wrap{display:flex;flex-direction:column}
+#plansCard{order:0}
+.note-layout{display:grid;grid-template-columns:minmax(175px,.7fr) minmax(0,1.5fr);gap:14px;align-items:start}
+.doc-list{border:1px solid var(--line);border-radius:12px;overflow:hidden;max-height:420px;overflow-y:auto}
+.doc-list-empty{font-size:12px;color:var(--muted);padding:15px;line-height:1.7}
+.doc-row{padding:12px;border-bottom:1px solid var(--line);cursor:pointer;background:#fff}
+.doc-row:last-child{border-bottom:0}.doc-row.active{background:#f3f1ff;border-left:3px solid var(--primary);padding-left:9px}
+.doc-row strong{display:block;font-size:12px;line-height:1.5;overflow-wrap:anywhere}.doc-row small{display:block;font-size:10px;color:var(--muted);margin-top:5px}
+.doc-title-input{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:10px;margin-bottom:10px;outline:none;font-size:13px}
+.doc-title-input:focus{border-color:#b9b3ff}.note-editor-wrap{min-width:0}
+.course-edit-tools{display:flex;gap:3px;margin-top:4px}.course-edit-tools button{font-size:9px;border:0;border-radius:5px;padding:3px 4px;background:#ffffffd9;color:#4d4b70}
+.material-item{gap:9px}.material-open{border:0;background:var(--primary-soft);color:var(--primary);border-radius:7px;padding:6px 8px;font-size:10px;white-space:nowrap}.material-delete{border:0;background:#fff0f0;color:#c34e5d;border-radius:7px;padding:6px 8px;font-size:10px}
+.task-delete{border:0;background:#fff0f0;color:#c34e5d;border-radius:7px;padding:6px 8px;font-size:10px;white-space:nowrap}
+@media(max-width:700px){.note-layout{grid-template-columns:1fr}.doc-list{max-height:180px}.nav-wrap{flex-direction:row}}
+
+@media(max-width:1050px){.sidebar{width:205px}.main{padding:24px 22px}.grid{grid-template-columns:minmax(0,1fr)}.right-col{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.focus-card{grid-row:span 2}}
+@media(max-width:700px){.app{display:block}.sidebar{position:sticky;top:0;z-index:20;height:auto;width:100%;padding:12px 14px;display:block;border-right:0;border-bottom:1px solid var(--line)}.brand{padding:0 3px 10px}.nav-label,.sidebar-bottom{display:none}.nav-wrap{display:flex;gap:4px;overflow:auto}.nav{width:auto;white-space:nowrap;padding:9px 11px;font-size:12px}.nav .ico{font-size:14px}.main{padding:20px 14px}.topbar{align-items:flex-start;flex-direction:column}.top-actions{width:100%;justify-content:space-between}.greeting h2{font-size:22px}.hero-art{right:15px;font-size:40px;opacity:.45}.hero h3{font-size:20px}.hero p{max-width:85%}.stats{gap:8px}.stat{padding:12px}.stat strong{font-size:21px}.stat-top{font-size:10px}.stat-icon{width:25px;height:25px}.right-col{display:flex}.card{padding:17px}.schedule-board{min-width:760px}.course-form-grid{grid-template-columns:1fr}.form-field.full{grid-column:auto}.course-modal{padding:18px}.quick-links{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.course-directory-wrap{margin:16px 0 20px;padding:20px;border:1px solid var(--line);border-radius:18px;background:#fff}
+.course-directory-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
+.course-directory-head h3{margin:8px 0 5px;font-size:18px}.course-directory-head p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
+.course-directory{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px}
+.course-directory-card{display:flex;align-items:center;gap:12px;text-align:left;padding:15px;border:1px solid var(--line);border-radius:14px;background:#fbfbff;cursor:pointer;color:var(--text);min-width:0;transition:.15s}
+.course-directory-card:active{transform:scale(.99)}.course-directory-card:hover{border-color:var(--primary)}
+.course-directory-card .course-dir-icon{width:42px;height:42px;flex:0 0 42px;border-radius:12px;background:var(--primary-soft);display:grid;place-items:center;font-size:22px}
+.course-directory-card strong{display:block;overflow-wrap:anywhere;font-size:14px}.course-directory-card small{display:block;margin-top:5px;color:var(--muted);font-size:12px}
+@media(max-width:600px){.course-directory-wrap{padding:14px}.course-directory-head{align-items:flex-start;flex-direction:column}.course-directory{grid-template-columns:repeat(2,minmax(0,1fr))}.course-directory-card{padding:11px;gap:8px}.course-directory-card .course-dir-icon{width:34px;height:34px;flex-basis:34px;font-size:18px}}
+
+.course-directory-card{display:flex;align-items:center;gap:8px;min-width:0;padding:8px;border:1px solid var(--line);border-radius:14px;background:#fbfbff}
+.course-directory-card .course-dir-main{display:flex;align-items:center;gap:10px;flex:1;min-width:0;text-align:left;border:0;background:transparent;color:var(--text);cursor:pointer;padding:5px}
+.course-directory-card .course-dir-main>span:last-child{min-width:0}
+.course-dir-delete{border:0;border-radius:8px;padding:7px 9px;background:#fff0f0;color:#c34e5d;font-size:11px;flex-shrink:0}
+.course-directory-card .course-dir-main:hover strong{text-decoration:underline;color:var(--primary)}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><div class="logo">伴</div><div><h1>学伴</h1><small>让每一次学习都有迹可循</small></div></div>
+    <div class="nav-label">学习空间</div>
+    <div class="nav-wrap">
+      <button class="nav active" data-page="home"><span class="ico">⌂</span>学习总览</button>
+      <button class="nav" data-page="plans"><span class="ico">✓</span>学习计划</button>
+      <button class="nav" data-page="schedule"><span class="ico">▦</span>课程表</button>
+      <button class="nav" data-page="notes"><span class="ico">▤</span>我的笔记</button>
+      <button class="nav" data-page="materials"><span class="ico">▧</span>学习资料</button>
+    </div>
+    <div class="sidebar-bottom"><strong>🌱 每天进步一点点</strong><p>把课程、笔记和专注时间放在一起，让学习更有条理。</p><button class="small-btn" onclick="showToast('后续版本将支持个性化学习计划')">了解学习计划 ↗</button></div>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <div class="greeting"><h2 id="greetingTitle">下午好，今天也要稳步前进 ☀️</h2><p id="todayLine">把大目标拆成小步骤，一点点完成就很好。</p></div>
+      <div class="top-actions">
+        
+        <div class="avatar">🐱</div>
+      </div>
+    </div>
+
+    <section class="dashboard" id="dashboard">
+      <div class="grid">
+        <div class="left-col">
+          <section class="card hero">
+            <div class="eyebrow">YOUR STUDY SPACE</div>
+            <h3 id="heroTitle">今天，先完成最重要的一件事</h3>
+            <p id="heroDesc">课程安排、课堂笔记、学习资料与专注计时，在一个地方顺手衔接起来。</p>
+            <div class="hero-actions"><button class="hero-btn" onclick="startFocus()">开始专注  →</button><button class="hero-btn ghost" onclick="openCourse('微观经济学')">继续上次学习</button></div>
+            <div class="hero-art">✦</div>
+          </section>
+          <div class="stats">
+            <div class="stat"><div class="stat-top">今日专注 <span class="stat-icon" style="background:#efedff;color:#6257e8">◷</span></div><strong id="focusStat">0<span style="font-size:13px;font-weight:500"> 分钟</span></strong><small>从今天开始记录专注时间</small></div>
+            <div class="stat"><div class="stat-top">待完成任务 <span class="stat-icon" style="background:#fff0df;color:#c17c2d">✓</span></div><strong id="taskStat">3</strong><small>今日学习清单</small></div>
+            <div class="stat"><div class="stat-top">学习连续日 <span class="stat-icon" style="background:#e4f7f1;color:#198d7d">♧</span></div><strong id="streakStat">0<span style="font-size:13px;font-weight:500"> 天</span></strong><small>从第一天开始积累</small></div>
+          </div>
+          <section class="card" id="plansCard">
+            <div class="card-head"><div><h3 id="taskTitle">学习计划</h3><p>安排任务、跟踪进度；不需要的计划可以随时删除</p></div><button class="text-btn" onclick="addTask()">＋ 新建计划</button></div>
+            <div class="task-list" id="taskList"></div>
+          </section>
+          <section class="card" id="scheduleCard">
+            <div class="schedule-head"><div class="card-head" style="margin:0"><div><h3>我的课程表</h3><p>支持自定义星期、具体起止时间、地点、教师、周次和颜色</p></div></div><div class="week-switch"><button onclick="changeWeek(-1)" aria-label="上一周">‹</button><span id="weekLabel">第 6 周 · 我的课表</span><button onclick="changeWeek(1)" aria-label="下一周">›</button></div></div>
+            <div class="schedule-toolbar"><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="primary-btn" onclick="openCourseModal()">＋ 添加课程</button><button class="secondary-btn" onclick="toggleScheduleEdit()" id="editScheduleBtn">✎ 编辑模式</button><button class="secondary-btn" onclick="resetSchedule()">恢复示例课表</button></div><span class="schedule-legend">点击空白时段可快速添加课程</span></div>
+            <div class="schedule-scroll"><div class="schedule-board" id="schedule"></div></div>
+            <div class="schedule-foot"><span><i class="dot" style="background:#8276f5"></i>专业课程</span><span><i class="dot" style="background:#28b49d"></i>通识课程</span><span><i class="dot" style="background:#f2a44a"></i>自习 / 自定义</span><span>ⓘ 课表数据保存在当前浏览器</span></div>
+          </section>
+        </div>
+        <div class="right-col">
+          <section class="card focus-card" id="focusCard">
+            <div class="card-head"><div><h3>专注计时</h3><p>一次只做一件事</p></div><span style="font-size:19px">🍅</span></div>
+            <div class="focus-body"><div class="focus-sub" id="focusSubtitle">正在专注 · 微观经济学</div><div class="timer"><strong id="timerDisplay">25:00</strong><span id="timerLabel">专注时间</span></div><div class="timer-controls"><button class="primary-btn" id="timerStart" onclick="toggleTimer()">▶ 开始专注</button><button class="secondary-btn" onclick="resetTimer()">↻ 重置</button></div><div class="focus-modes"><button class="active" data-min="25">专注 25 分钟</button><button data-min="5">短休息 5 分钟</button><button data-min="15">长休息 15 分钟</button></div><div class="custom-focus" style="display:flex;justify-content:center;align-items:center;gap:7px;flex-wrap:wrap;margin-top:10px"><label for="customFocusMinutes" style="font-size:11px;color:var(--muted)">自定义时长</label><input id="customFocusMinutes" type="number" min="1" max="180" step="1" value="40" inputmode="numeric" aria-label="自定义专注分钟数" style="width:76px;border:1px solid var(--line);border-radius:8px;padding:7px;font-size:12px"><span style="font-size:11px;color:var(--muted)">分钟</span><button type="button" class="secondary-btn" id="applyCustomFocus" style="padding:7px 10px;font-size:11px">应用</button></div></div>
+          </section>
+          <section class="card">
+            <div class="card-head"><div><h3>快速入口</h3><p>常用功能，一键直达</p></div></div>
+            <div class="quick-links">
+              <button class="quick" onclick="openCourse('微观经济学')"><span class="qico">📝</span><span><strong>课程笔记</strong><small>继续整理课堂内容</small></span></button>
+              <button class="quick" onclick="switchPage('materials')"><span class="qico" style="background:#e5f7f2">📂</span><span><strong>学习资料</strong><small>查看与上传文件</small></span></button>
+              <button class="quick" onclick="addTask()"><span class="qico" style="background:#fff0df">☑️</span><span><strong>学习任务</strong><small>记录下一步计划</small></span></button>
+              <button class="quick" onclick="showToast('学习统计功能将在后续版本完善')"><span class="qico" style="background:#ffedf2">📈</span><span><strong>学习统计</strong><small>回顾你的专注轨迹</small></span></button>
+            </div>
+          </section>
+          <section class="card"><div class="card-head"><div><h3>最近学习</h3><p>按最近打开顺序显示学习项目</p></div><button class="text-btn" onclick="switchPage('notes')">查看项目</button></div><div class="task-list" id="recentLearningList"><div class="doc-list-empty">打开一个学习项目后，这里会显示最近学习记录。</div></div></section>
+        </div>
+      </div>
+    </section>
+
+    <section class="course-page" id="coursePage">
+      <div class="card" style="margin-bottom:20px">
+        <button class="text-btn" onclick="backHome()">← 返回学习总览</button>
+        <div class="course-directory-wrap">
+          <div class="course-directory-head"><div><span class="pill purple">我的项目</span><h3>选择一个项目继续学习</h3><p>这里是独立的学习项目列表，与课表互不绑定。点击项目切换下方笔记和资料；项目可单独添加或删除。</p></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="secondary-btn" type="button" onclick="addDirectoryCourse()">＋ 添加项目</button></div></div>
+          <div class="course-directory" id="courseDirectory"></div>
+        </div>
+        <div class="course-banner"><div><span class="pill purple">当前学习项目</span><h2 id="courseTitle">微观经济学</h2><p id="courseMeta">笔记、资料与复习任务统一管理</p></div><div class="course-symbol" id="courseSymbol">📘</div></div>
+        <div class="course-tabs"><button class="active" data-tab="notes">📝 课堂笔记</button><button data-tab="materials">📂 课程资料</button><button data-tab="tasks">☑️ 复习任务</button></div>
+        <div id="tabNotes"><div class="card-head"><div><h3>课程文档</h3><p>每次保存可另存为独立文档，也可以新建、浏览和重新打开</p></div><button class="primary-btn" onclick="newNoteDoc()">＋ 新建文档</button></div><div class="note-layout"><div class="doc-list" id="noteDocList"></div><div class="note-editor-wrap"><input id="noteDocTitle" class="doc-title-input" placeholder="给这篇笔记命名，例如：第 1 讲 · 供求理论"><textarea class="note-area" id="noteEditor" placeholder="在这里记录课堂重点、公式、疑问……&#10;&#10;例如：&#10;1. 本节课的核心概念：&#10;2. 需要理解的公式：&#10;3. 还没弄懂的问题："></textarea><div class="note-actions"><span class="muted" id="saveState">尚未保存为文档</span><button class="primary-btn" onclick="saveNote()">保存为独立文档</button></div></div></div></div>
+        <div id="tabMaterials" style="display:none"><div class="material-box"><div class="upload-ico">☁️</div><strong>把课程资料放在一起</strong><p>上传后可以点击文件名打开或下载。文件保存在当前浏览器的本地数据库中。</p><label class="primary-btn" style="display:inline-block;cursor:pointer">选择文件<input type="file" id="fileInput" multiple hidden></label></div><div class="material-list" id="materialList"></div></div>
+        <div id="tabTasks" style="display:none"><div class="task-list" id="courseTaskList"></div><button class="secondary-btn" style="margin-top:16px" onclick="addTask()">＋ 添加复习任务</button></div>
+      </div>
+      <div class="card"><div class="card-head"><div><h3>这门课的专注记录</h3><p>学习空间与专注计时自然衔接</p></div></div><div style="display:flex;align-items:center;gap:14px;background:#faf9ff;border-radius:13px;padding:17px"><span style="font-size:29px">🍅</span><div style="flex:1"><strong style="font-size:13px">开启一次专注学习</strong><p class="muted">计时期间可以继续查看课程笔记</p></div><button class="primary-btn" onclick="backHome();startFocus()">开始计时</button></div></div>
+    </section>
+  </main>
+</div>
+<div class="course-modal-backdrop" id="courseModalBackdrop" role="dialog" aria-modal="true" aria-labelledby="courseModalTitle">
+  <div class="course-modal">
+    <div class="course-modal-head"><h3 id="courseModalTitle">添加课程</h3><button class="modal-close" type="button" onclick="closeCourseModal()" aria-label="关闭">×</button></div>
+    <form id="courseForm">
+      <div class="course-form-grid">
+        <div class="form-field full"><label for="courseNameInput">课程名称 *</label><input id="courseNameInput" required maxlength="60" placeholder="例如：微观经济学"></div>
+        <div class="form-field"><label for="courseDayInput">星期</label><select id="courseDayInput"><option value="0">周一</option><option value="1">周二</option><option value="2">周三</option><option value="3">周四</option><option value="4">周五</option><option value="5">周六</option><option value="6">周日</option></select></div>
+        <div class="form-field"><label for="courseRoomInput">上课地点</label><input id="courseRoomInput" maxlength="80" placeholder="例如：教学楼 A203"></div>
+        <div class="form-field"><label for="courseStartInput">开始时间</label><input id="courseStartInput" type="time" value="09:00" required></div>
+        <div class="form-field"><label for="courseEndInput">结束时间</label><input id="courseEndInput" type="time" value="10:30" required></div>
+        <div class="form-field"><label for="courseTeacherInput">教师（选填）</label><input id="courseTeacherInput" maxlength="60" placeholder="教师姓名"></div>
+        <div class="form-field"><label for="courseWeeksInput">上课周次</label><input id="courseWeeksInput" placeholder="例如：1-16，留空表示每周" value="1-20"></div>
+        <div class="form-field full"><label>课程颜色</label><div class="color-options" id="courseColorOptions"><button class="color-choice c-purple selected" type="button" data-color="c-purple" aria-label="紫色"></button><button class="color-choice c-blue" type="button" data-color="c-blue" aria-label="蓝色"></button><button class="color-choice c-green" type="button" data-color="c-green" aria-label="绿色"></button><button class="color-choice c-orange" type="button" data-color="c-orange" aria-label="橙色"></button><button class="color-choice c-pink" type="button" data-color="c-pink" aria-label="粉色"></button></div></div>
+        <div class="form-field full"><label for="courseNoteInput">备注（选填）</label><textarea id="courseNoteInput" rows="2" placeholder="例如：带教材、课堂小测"></textarea></div>
+      </div>
+      <div class="modal-actions"><button type="button" class="secondary-btn" id="deleteCourseBtn" style="display:none" onclick="deleteEditingCourse()">删除课程</button><div class="modal-actions-right"><button type="button" class="secondary-btn" onclick="closeCourseModal()">取消</button><button type="submit" class="primary-btn">保存课程</button></div></div>
+    </form>
+  </div>
+</div>
+<div class="file-preview-backdrop" id="filePreviewBackdrop" role="dialog" aria-modal="true" aria-label="文件预览">
+  <div class="file-preview-panel"><div class="file-preview-head"><strong id="filePreviewTitle">文件预览</strong><button class="secondary-btn" id="filePreviewDownload">下载文件</button><button class="modal-close" type="button" onclick="closeFilePreview()" aria-label="关闭预览">×</button></div><div class="file-preview-body" id="filePreviewBody"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const defaultCourses=[
+ {day:0,start:'09:00',end:'10:30',name:'微观经济学',room:'教学楼 A203',teacher:'',weeks:'1-20',note:'',cls:'c-purple',icon:'📘'},
+ {day:1,start:'10:00',end:'11:40',name:'线性代数',room:'教学楼 B106',teacher:'',weeks:'1-20',note:'',cls:'c-blue',icon:'∑'},
+ {day:2,start:'08:00',end:'09:40',name:'大学英语',room:'外语楼 302',teacher:'',weeks:'1-20',note:'',cls:'c-green',icon:'🔤'},
+ {day:2,start:'14:00',end:'15:30',name:'自主学习',room:'图书馆',teacher:'',weeks:'1-20',note:'',cls:'c-orange',icon:'📖'},
+ {day:3,start:'10:00',end:'11:40',name:'西方经济学',room:'教学楼 A301',teacher:'',weeks:'1-20',note:'',cls:'c-purple',icon:'📈'},
+ {day:4,start:'08:00',end:'09:40',name:'思政课',room:'教学楼 C202',teacher:'',weeks:'1-20',note:'',cls:'c-pink',icon:'💬'},
+ {day:5,start:'14:00',end:'15:30',name:'复习整理',room:'自习室',teacher:'',weeks:'',note:'',cls:'c-orange',icon:'✍️'}
+];
+function normalizeCourse(c){if(c.start&&c.end)return {...c,day:Number(c.day)||0};const starts=['08:00','10:00','14:00'];const start=starts[c.time]||'09:00';const end=c.time===1?'11:30':c.time===2?'15:30':'09:40';return {...c,start,end,teacher:c.teacher||'',weeks:c.weeks||'1-20',note:c.note||''}}
+let courseData=loadJSON('xueban_courses',defaultCourses).map(normalizeCourse),week=6,currentCourse='微观经济学',activeTab='notes',scheduleEdit=false,editingCourseIndex=null,selectedCourseColor='c-purple';
+// 学习项目独立于课表保存；只在首次使用时用示例课程初始化一次。
+let projects=loadJSON('xueban_projects',null);if(!Array.isArray(projects)){projects=[...new Set(courseData.map(c=>c.name).filter(Boolean))];persist('xueban_projects',projects)}
+let tasks=loadJSON('xueban_tasks',[
+ {text:'复习微观经济学：市场均衡',sub:'课程 · 预计 25 分钟',tag:'优先完成',done:false},
+ {text:'整理线性代数课堂笔记',sub:'课程 · 预计 30 分钟',tag:'今日计划',done:false},
+ {text:'完成英语单词复习',sub:'日常 · 预计 15 分钟',tag:'轻量任务',done:true}
+]);
+let notes=loadJSON('xueban_note_docs',{}),currentDocId=null;
+let seconds=25*60,initialSeconds=25*60,timerInterval=null,running=false,isFocusMode=true;
+// 本地学习统计：只累计专注模式实际运行的秒数，休息模式不计入。
+let focusStats=loadJSON('xueban_focus_stats',{days:{}});if(!focusStats||typeof focusStats!=='object'||!focusStats.days)focusStats={days:{}};
+function localDateKey(d=new Date()){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function recordFocusSecond(){const key=localDateKey();focusStats.days[key]=(Number(focusStats.days[key])||0)+1;persist('xueban_focus_stats',focusStats);renderFocusStats()}
+function renderFocusStats(){const today=localDateKey();const mins=Math.floor((Number(focusStats.days[today])||0)/60);const focusEl=document.getElementById('focusStat'),streakEl=document.getElementById('streakStat');if(focusEl)focusEl.innerHTML=mins+'<span style="font-size:13px;font-weight:500"> 分钟</span>';let streak=0;const cursor=new Date();if(!(Number(focusStats.days[today])>0))cursor.setDate(cursor.getDate()-1);while(true){const key=localDateKey(cursor);if((Number(focusStats.days[key])||0)>0){streak++;cursor.setDate(cursor.getDate()-1)}else break;}if(streakEl)streakEl.innerHTML=streak+'<span style="font-size:13px;font-weight:500"> 天</span>';}
+let materialFiles=[];let dbPromise=openFileDB();
+function loadJSON(key,fallback){try{const v=localStorage.getItem(key);return v?JSON.parse(v):JSON.parse(JSON.stringify(fallback))}catch(e){return fallback}}
+function persist(key,value){try{localStorage.setItem(key,JSON.stringify(value))}catch(e){showToast('浏览器存储空间不足，请导出或删除部分内容')}}
+function saveCourses(){persist('xueban_courses',courseData)}function saveTasks(){persist('xueban_tasks',tasks)}function saveNotes(){persist('xueban_note_docs',notes)}
+function timeToMinutes(value){const [h,m]=String(value||'09:00').split(':').map(Number);return h*60+m}
+function formatTime(value){return String(value).padStart(2,'0')+':00'}
+function weekVisible(c){if(!c.weeks||!c.weeks.trim())return true;const ranges=c.weeks.split(',').map(x=>x.trim());return ranges.some(r=>{const m=r.match(/^(\d+)\s*[-~至]\s*(\d+)$/);if(m)return week>=Number(m[1])&&week<=Number(m[2]);const one=Number(r);return Number.isFinite(one)&&one===week})}
+function renderSchedule(){
+ const el=document.getElementById('schedule');if(!el)return;
+ const days=['周一','周二','周三','周四','周五','周六','周日'];
+ const startHour=7,endHour=22,pxPerHour=48,totalHeight=(endHour-startHour)*pxPerHour;
+ let html='<div class="schedule-corner">时间</div>'+days.map((d,i)=>`<div class="schedule-day-head ${i===new Date().getDay()-1?'today':''}">${d}${i===new Date().getDay()-1?'<br><small>今天</small>':''}</div>`).join('');
+ html+=`<div class="schedule-time-col" style="height:${totalHeight}px">`;
+ for(let h=startHour;h<endHour;h++)html+=`<div class="schedule-hour-label" style="height:${pxPerHour}px">${formatTime(h)}</div>`;
+ html+='</div>';
+ days.forEach((day,di)=>{
+   html+=`<div class="schedule-day-col" data-day="${di}" style="height:${totalHeight}px" onclick="scheduleBlankClick(event,${di})">`;
+   courseData.map((c,i)=>({...c,index:i})).filter(c=>c.day===di&&weekVisible(c)).forEach(c=>{
+     const start=Math.max(startHour*60,timeToMinutes(c.start)),end=Math.min(endHour*60,timeToMinutes(c.end));
+     if(end<=start)return;
+     const top=(start-startHour*60)/60*pxPerHour,height=Math.max(26,(end-start)/60*pxPerHour-4);
+     html+=`<button type="button" class="schedule-course ${c.cls||'c-purple'}" style="top:${top+2}px;height:${height}px" onclick="event.stopPropagation();${scheduleEdit?`editCourse(${c.index})`:`openCourse(${JSON.stringify(c.name)})`}" title="${escapeHTML(c.name)} · ${escapeHTML(c.start)}-${escapeHTML(c.end)}"><strong>${escapeHTML(c.name)}</strong><small>${escapeHTML(c.start)}–${escapeHTML(c.end)}</small><small>${escapeHTML(c.room||'地点待定')}</small>${scheduleEdit?`<span class="course-tools"><span>点击编辑</span></span>`:''}</button>`;
+   });
+   html+='</div>';
+ });
+ el.innerHTML=html;
+ document.getElementById('weekLabel').textContent=`第 ${week} 周 · 我的课表`;
+ document.getElementById('editScheduleBtn').textContent=scheduleEdit?'✓ 完成编辑':'✎ 编辑模式';
+}
+function escapeHTML(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function toggleScheduleEdit(){scheduleEdit=!scheduleEdit;renderSchedule();showToast(scheduleEdit?'编辑模式已开启，点击课程即可修改':'已退出编辑模式')}
+function scheduleBlankClick(event,day){if(event.target.closest('.schedule-course'))return;const rect=event.currentTarget.getBoundingClientRect();const y=event.clientY-rect.top;const minutes=Math.floor((y/48*60+7*60)/30)*30;const h=Math.floor(minutes/60),m=minutes%60;const start=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');const endM=Math.min(22*60,minutes+90);const end=String(Math.floor(endM/60)).padStart(2,'0')+':'+String(endM%60).padStart(2,'0');openCourseModal(null,{day,start,end})}
+function openCourseModal(index=null,prefill={}){
+ editingCourseIndex=Number.isInteger(index)?index:null;const c=editingCourseIndex!==null?courseData[editingCourseIndex]:null;
+ document.getElementById('courseModalTitle').textContent=c?'编辑课程':'添加课程';
+ document.getElementById('courseNameInput').value=c?.name||'';document.getElementById('courseDayInput').value=String(c?.day??prefill.day??0);document.getElementById('courseRoomInput').value=c?.room||'';document.getElementById('courseStartInput').value=c?.start||prefill.start||'09:00';document.getElementById('courseEndInput').value=c?.end||prefill.end||'10:30';document.getElementById('courseTeacherInput').value=c?.teacher||'';document.getElementById('courseWeeksInput').value=c?.weeks??'1-20';document.getElementById('courseNoteInput').value=c?.note||'';selectedCourseColor=c?.cls||'c-purple';
+ document.querySelectorAll('.color-choice').forEach(b=>b.classList.toggle('selected',b.dataset.color===selectedCourseColor));document.getElementById('deleteCourseBtn').style.display=c?'inline-block':'none';document.getElementById('courseModalBackdrop').classList.add('show');setTimeout(()=>document.getElementById('courseNameInput').focus(),50)
+}
+function closeCourseModal(){document.getElementById('courseModalBackdrop').classList.remove('show');editingCourseIndex=null}
+function editCourse(i){openCourseModal(i)}
+function deleteEditingCourse(){if(editingCourseIndex===null)return;const c=courseData[editingCourseIndex];if(confirm(`确定删除课程“${c.name}”吗？`)){courseData.splice(editingCourseIndex,1);saveCourses();closeCourseModal();renderSchedule();showToast('课程已删除')}}
+function addCourse(){openCourseModal()}
+function deleteCourse(i){if(!courseData[i])return;editingCourseIndex=i;deleteEditingCourse()}
+function resetSchedule(){if(confirm('确定恢复示例课表吗？你自定义的课程将被替换。')){courseData=JSON.parse(JSON.stringify(defaultCourses));saveCourses();renderSchedule();renderCourseDirectory();showToast('已恢复示例课表')}}
+document.getElementById('courseForm').addEventListener('submit',e=>{
+ e.preventDefault();const name=document.getElementById('courseNameInput').value.trim(),start=document.getElementById('courseStartInput').value,end=document.getElementById('courseEndInput').value;
+ if(!name){showToast('请填写课程名称');return}if(!start||!end||timeToMinutes(end)<=timeToMinutes(start)){showToast('结束时间必须晚于开始时间');return}
+ const item={day:Number(document.getElementById('courseDayInput').value),name,room:document.getElementById('courseRoomInput').value.trim(),start,end,teacher:document.getElementById('courseTeacherInput').value.trim(),weeks:document.getElementById('courseWeeksInput').value.trim(),note:document.getElementById('courseNoteInput').value.trim(),cls:selectedCourseColor,icon:'📚'};
+ const wasEditing=editingCourseIndex!==null;if(wasEditing)courseData[editingCourseIndex]=item;else courseData.push(item);saveCourses();closeCourseModal();renderSchedule();renderCourseDirectory();showToast(wasEditing?'课程已更新':'课程已添加');
+});
+document.querySelectorAll('.color-choice').forEach(b=>b.addEventListener('click',()=>{selectedCourseColor=b.dataset.color;document.querySelectorAll('.color-choice').forEach(x=>x.classList.toggle('selected',x===b))}));
+document.getElementById('courseModalBackdrop').addEventListener('click',e=>{if(e.target.id==='courseModalBackdrop')closeCourseModal()});
+function renderTasks(){const el=document.getElementById('taskList');el.innerHTML=tasks.length?tasks.map((t,i)=>`<div class="task"><button class="check ${t.done?'done':''}" onclick="toggleTask(${i})">${t.done?'✓':''}</button><div class="task-text"><strong style="${t.done?'text-decoration:line-through;color:#9da4b2':''}">${escapeHTML(t.text)}</strong><small>${escapeHTML(t.sub||'自定义计划')}</small></div><span class="pill ${i===0?'purple':i===2?'green':''}">${t.done?'已完成':escapeHTML(t.tag||'计划')}</span><button class="task-delete" onclick="deleteTask(${i})" title="删除计划">删除</button></div>`).join(''):'<div class="doc-list-empty">还没有学习计划，点击右上角“新建计划”添加一项吧。</div>';document.getElementById('taskStat').textContent=tasks.filter(t=>!t.done).length;const ce=document.getElementById('courseTaskList');if(ce)ce.innerHTML=tasks.length?tasks.map((t,i)=>`<div class="task"><button class="check ${t.done?'done':''}" onclick="toggleTask(${i})">${t.done?'✓':''}</button><div class="task-text"><strong>${escapeHTML(t.text)}</strong><small>${escapeHTML(t.sub||'自定义计划')}</small></div><button class="task-delete" onclick="deleteTask(${i})">删除</button></div>`).join(''):'<div class="doc-list-empty">暂无任务。</div>';saveTasks()}
+function toggleTask(i){tasks[i].done=!tasks[i].done;renderTasks()}function deleteTask(i){if(confirm(`确定删除计划“${tasks[i].text}”吗？`)){tasks.splice(i,1);renderTasks();showToast('计划已删除')}}
+function addTask(){const text=prompt('请输入计划或学习任务名称：');if(text&&text.trim()){const sub=prompt('补充说明或预计时长（可留空）：','预计 25 分钟')||'自定义计划';tasks.unshift({text:text.trim(),sub,tag:'新计划',done:false});renderTasks();showToast('已添加到学习计划')}}
+function setNavActive(page){document.querySelectorAll('.nav').forEach(b=>{const active=b.dataset.page===page;b.classList.toggle('active',active);if(active&&b.scrollIntoView)b.scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'});});}
+function switchPage(page){
+  setNavActive(page);
+  if(page==='notes'){openCourse(currentCourse,'notes','notes');return;}
+  if(page==='materials'){openCourse(currentCourse,'materials','materials');return;}
+  document.getElementById('dashboard').classList.remove('hide');
+  document.getElementById('coursePage').classList.remove('show');
+  if(page==='schedule')document.getElementById('scheduleCard').scrollIntoView({behavior:'smooth',block:'start'});
+  else if(page==='plans')document.getElementById('plansCard').scrollIntoView({behavior:'smooth',block:'start'});
+  else if(page==='home')window.scrollTo({top:0,behavior:'smooth'});
+}
+function backHome(){document.getElementById('dashboard').classList.remove('hide');document.getElementById('coursePage').classList.remove('show');setNavActive('home');window.scrollTo({top:0,behavior:'smooth'});}
+function saveProjects(){persist('xueban_projects',projects)}
+function renderCourseDirectory(){
+ const el=document.getElementById('courseDirectory'); if(!el)return;
+ if(!projects.length){el.innerHTML='<div class="doc-list-empty">还没有学习项目。点击“添加项目”创建一个独立的笔记与资料空间。</div>';return;}
+ const icons=['📘','∑','🔤','📗','📙','🧪','📝','📖'];
+ el.innerHTML=projects.map((name,i)=>`<div class="course-directory-card" style="cursor:default"><button type="button" class="course-dir-main" data-project-open="${i}" aria-label="打开${escapeHTML(name)}项目空间"><span class="course-dir-icon">${icons[i%icons.length]}</span><span style="min-width:0"><strong>${escapeHTML(name)}</strong><small>${name===currentCourse?'当前项目 · 点击查看':'独立笔记与资料空间 · 点击进入'}</small></span></button><button type="button" class="course-dir-delete" data-project-delete="${i}" aria-label="删除${escapeHTML(name)}项目">删除</button></div>`).join('');
+}
+function addDirectoryCourse(){
+ const raw=prompt('请输入新学习项目名称：');if(raw===null||!raw.trim())return;const name=raw.trim();
+ if(projects.includes(name)){showToast('这个项目已经存在，请直接点击项目卡片进入');return;}
+ projects.push(name);saveProjects();renderCourseDirectory();openCourse(name,'notes');showToast('已创建独立学习项目；不会修改课表');
+}
+async function removeDirectoryCourse(name){
+ if(!projects.includes(name))return;
+ if(!confirm(`确定删除学习项目“${name}”吗？只会删除这个项目及其笔记和资料，不会修改课表。`))return;
+ projects=projects.filter(n=>n!==name);saveProjects();
+ Object.keys(notes).forEach(id=>{if(notes[id]?.course===name)delete notes[id]});saveNotes();
+ const db=await dbPromise;
+ if(db){await new Promise(resolve=>{try{const tx=db.transaction('files','readwrite'),store=tx.objectStore('files'),req=store.getAll();req.onsuccess=()=>{(req.result||[]).filter(f=>f.course===name).forEach(f=>store.delete(f.id))};tx.oncomplete=resolve;tx.onerror=resolve;tx.onabort=resolve}catch(e){resolve()}})}
+ materialFiles=materialFiles.filter(f=>f.course!==name);
+ if(currentCourse===name){
+   if(projects.length)openCourse(projects[0],'notes');
+   else {currentCourse='';document.getElementById('courseTitle').textContent='请选择一个项目';document.getElementById('noteEditor').value='';document.getElementById('noteDocTitle').value='';renderNoteDocs();renderMaterials();renderCourseDirectory();showToast('项目已删除');return;}
+ }
+ renderCourseDirectory();renderNoteDocs();renderMaterials();showToast('学习项目已删除；课表保持不变');
+}
+document.getElementById('courseDirectory').addEventListener('click',e=>{
+ const openBtn=e.target.closest('[data-project-open]');
+ const deleteBtn=e.target.closest('[data-project-delete]');
+ if(openBtn){const name=projects[Number(openBtn.dataset.projectOpen)];if(name)openCourse(name,'notes');}
+ else if(deleteBtn){const name=projects[Number(deleteBtn.dataset.projectDelete)];if(name)removeDirectoryCourse(name);}
+});
+let recentLearning=loadJSON('xueban_recent_learning',[]);
+function renderRecentLearning(){
+ const el=document.getElementById('recentLearningList');if(!el)return;
+ const valid=recentLearning.filter(x=>x&&x.name&&projects.includes(x.name)).slice(0,5);
+ if(!valid.length){el.innerHTML='<div class="doc-list-empty">打开一个学习项目后，这里会显示最近学习记录。</div>';return;}
+ const icons=['📘','∑','🔤','📗','📙','🧪','📝','📖'];
+ el.innerHTML=valid.map((item,i)=>`<div class="task"><span class="stat-icon" style="background:${i%2?'#e4f7f1':'#efedff'};color:${i%2?'#198d7d':'#6257e8'}">${icons[projects.indexOf(item.name)%icons.length]||'📚'}</span><div class="task-text"><strong>${escapeHTML(item.name)}</strong><small>最近打开 · ${escapeHTML(item.when||'刚刚')}</small></div><button class="text-btn" type="button" data-recent-open="${escapeHTML(item.name)}">打开 →</button></div>`).join('');
+}
+document.getElementById('recentLearningList').addEventListener('click',e=>{const b=e.target.closest('[data-recent-open]');if(b)openCourse(b.dataset.recentOpen,'notes')});
+function recordRecentLearning(name){
+ const now=new Date();const when='今天 '+now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+ recentLearning=[{name,when},...recentLearning.filter(x=>x.name!==name)].slice(0,10);
+ persist('xueban_recent_learning',recentLearning);renderRecentLearning();
+}
+function openCourse(name,tab='notes',navPage=null){
+  if(!name){showToast('请先添加或选择一个学习项目');return;}
+  // 只有课表课程或已存在的项目才能直接进入；课程空间与独立项目列表分离。
+  if(!projects.includes(name) && !courseData.some(c=>c.name===name)){
+    showToast('请先通过“添加项目”创建这个学习项目');return;
+  }
+  if(!projects.includes(name)){projects.push(name);saveProjects()}
+  currentCourse=name;
+  recordRecentLearning(name);
+  renderCourseDirectory();
+  document.getElementById('dashboard').classList.add('hide');
+  document.getElementById('coursePage').classList.add('show');
+  document.getElementById('courseTitle').textContent=name;
+  const c=courseData.find(x=>x.name===name);
+  document.getElementById('courseSymbol').textContent=c?.icon||({'微观经济学':'📘','线性代数':'∑','大学英语':'🔤','自主学习':'📖','西方经济学':'📈','思政课':'💬','复习整理':'✍️'})[name]||'📚';
+  document.getElementById('courseMeta').textContent='独立学习项目 · 笔记、资料与复习任务分别管理';
+  currentDocId=null;document.getElementById('noteEditor').value='';document.getElementById('noteDocTitle').value='';document.getElementById('saveState').textContent='尚未保存为文档';
+  renderNoteDocs();selectTab(tab,navPage||tab);renderTasks();renderMaterials();
+}
+function selectTab(tab,navPage=null){
+  activeTab=tab;
+  document.querySelectorAll('.course-tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  ['notes','materials','tasks'].forEach(t=>document.getElementById('tab'+t[0].toUpperCase()+t.slice(1)).style.display=t===tab?'block':'none');
+  setNavActive(navPage||(tab==='materials'?'materials':'notes'));
+  if(tab==='materials')renderMaterials();
+}
+function newNoteDoc(){currentDocId=null;document.getElementById('noteDocTitle').value='';document.getElementById('noteEditor').value='';document.getElementById('saveState').textContent='新文档 · 尚未保存';renderNoteDocs();document.getElementById('noteDocTitle').focus()}
+function saveNote(){const title=document.getElementById('noteDocTitle').value.trim()||`${currentCourse} · 笔记 ${new Date().toLocaleString()}`;const content=document.getElementById('noteEditor').value;const id='doc_'+Date.now()+'_'+Math.random().toString(36).slice(2,7);notes[id]={id,title,content,course:currentCourse,updatedAt:new Date().toISOString()};currentDocId=id;saveNotes();renderNoteDocs();document.getElementById('saveState').textContent='已保存 ✓ · '+new Date().toLocaleTimeString();showToast('已保存为独立文档：《'+title+'》')}
+function openNoteDoc(id){const d=notes[id];if(!d)return;currentDocId=id;currentCourse=d.course||currentCourse;document.getElementById('noteDocTitle').value=d.title;document.getElementById('noteEditor').value=d.content||'';document.getElementById('saveState').textContent='已保存文档';renderNoteDocs()}
+function deleteNoteDoc(id,event){event.stopPropagation();const d=notes[id];if(!d)return;if(confirm(`确定删除文档“${d.title}”吗？`)){delete notes[id];if(currentDocId===id){currentDocId=null;document.getElementById('noteDocTitle').value='';document.getElementById('noteEditor').value=''}saveNotes();renderNoteDocs();showToast('文档已删除')}}
+function renderNoteDocs(){const el=document.getElementById('noteDocList');const docs=Object.values(notes).filter(d=>d.course===currentCourse).sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt));el.innerHTML=docs.length?docs.map(d=>`<div class="doc-row ${d.id===currentDocId?'active':''}" onclick="openNoteDoc('${d.id}')"><strong>📄 ${escapeHTML(d.title)}</strong><small>${new Date(d.updatedAt).toLocaleString()}</small><button class="task-delete" style="margin-top:7px" onclick="deleteNoteDoc('${d.id}',event)">删除文档</button></div>`).join(''):'<div class="doc-list-empty">这门课程还没有保存的笔记文档。点击“新建文档”开始记录，保存后会出现在这里。</div>'}
+function changeWeek(n){week=Math.max(1,week+n);renderSchedule();showToast('已切换到第 '+week+' 周')}
+function startFocus(){backHome();document.getElementById('focusCard').scrollIntoView({behavior:'smooth',block:'center'});if(!running)toggleTimer()}
+function updateTimer(){const m=String(Math.floor(seconds/60)).padStart(2,'0'),s=String(seconds%60).padStart(2,'0');document.getElementById('timerDisplay').textContent=m+':'+s}
+function toggleTimer(){if(running){clearInterval(timerInterval);running=false;document.getElementById('timerStart').textContent='▶ 继续专注';return}running=true;document.getElementById('timerStart').textContent='Ⅱ 暂停';timerInterval=setInterval(()=>{seconds--;if(isFocusMode)recordFocusSecond();updateTimer();if(seconds<=0){clearInterval(timerInterval);running=false;document.getElementById('timerStart').textContent='▶ 再来一轮';showToast('计时结束！休息一下，做得很好。')}},1000)}
+function resetTimer(){clearInterval(timerInterval);running=false;seconds=initialSeconds;updateTimer();document.getElementById('timerStart').textContent='▶ 开始专注'}
+function openFileDB(){return new Promise((resolve)=>{try{if(!('indexedDB'in window)){resolve(null);return}const req=indexedDB.open('xueban_files_db',1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('files'))req.result.createObjectStore('files',{keyPath:'id',autoIncrement:true})};req.onsuccess=()=>resolve(req.result);req.onerror=()=>resolve(null);req.onblocked=()=>resolve(null)}catch(e){resolve(null)}})}
+async function storeFile(file){
+ const db=await dbPromise;
+ if(!db){materialFiles.push({id:'tmp_'+Date.now()+'_'+Math.random().toString(36).slice(2),name:file.name,size:file.size,type:file.type,blob:file,course:currentCourse,addedAt:Date.now(),temporary:true});return true}
+ return new Promise(resolve=>{try{const tx=db.transaction('files','readwrite');tx.objectStore('files').add({name:file.name,size:file.size,type:file.type,blob:file,course:currentCourse,addedAt:Date.now()});tx.oncomplete=()=>resolve(true);tx.onerror=()=>{materialFiles.push({id:'tmp_'+Date.now()+'_'+Math.random().toString(36).slice(2),name:file.name,size:file.size,type:file.type,blob:file,course:currentCourse,addedAt:Date.now(),temporary:true});resolve(true)};tx.onabort=()=>{materialFiles.push({id:'tmp_'+Date.now()+'_'+Math.random().toString(36).slice(2),name:file.name,size:file.size,type:file.type,blob:file,course:currentCourse,addedAt:Date.now(),temporary:true});resolve(true)}}catch(e){materialFiles.push({id:'tmp_'+Date.now()+'_'+Math.random().toString(36).slice(2),name:file.name,size:file.size,type:file.type,blob:file,course:currentCourse,addedAt:Date.now(),temporary:true});resolve(true)}})
+}
+async function getFiles(){const db=await dbPromise;let stored=[];if(db){try{stored=await new Promise(resolve=>{const tx=db.transaction('files','readonly'),req=tx.objectStore('files').getAll();req.onsuccess=()=>resolve(req.result||[]);req.onerror=()=>resolve([])})}catch(e){stored=[]}}return [...stored.filter(f=>!f.course||f.course===currentCourse),...materialFiles.filter(f=>!f.course||f.course===currentCourse)]}
+let activePreviewUrl=null;
+function closeFilePreview(){document.getElementById('filePreviewBackdrop').classList.remove('show');document.getElementById('filePreviewBody').innerHTML='';if(activePreviewUrl){URL.revokeObjectURL(activePreviewUrl);activePreviewUrl=null}}
+async function openMaterial(id){
+ const db=await dbPromise;let item;
+ if(typeof id==='string'&&id.startsWith('tmp_'))item=materialFiles.find(f=>f.id===id);
+ if(!item&&db){try{item=await new Promise(resolve=>{const req=db.transaction('files','readonly').objectStore('files').get(Number(id));req.onsuccess=()=>resolve(req.result);req.onerror=()=>resolve(null)})}catch(e){item=null}}
+ if(!item)item=materialFiles.find(f=>String(f.id)===String(id));
+ if(!item||!item.blob){showToast('读取文件失败。请重新上传，或尝试下载后用对应软件打开。');return}
+ if(activePreviewUrl){URL.revokeObjectURL(activePreviewUrl);activePreviewUrl=null}
+ activePreviewUrl=URL.createObjectURL(item.blob);
+ const name=item.name||'文件',ext=name.split('.').pop().toLowerCase(),body=document.getElementById('filePreviewBody');
+ document.getElementById('filePreviewTitle').textContent=name;
+ const downloadBtn=document.getElementById('filePreviewDownload');downloadBtn.onclick=()=>{const a=document.createElement('a');a.href=activePreviewUrl;a.download=name;document.body.appendChild(a);a.click();a.remove()};
+ if(['pdf'].includes(ext))body.innerHTML=`<iframe title="${escapeHTML(name)}" src="${activePreviewUrl}#toolbar=1&navpanes=0"></iframe>`;
+ else if(['png','jpg','jpeg','gif','webp','svg','bmp'].includes(ext))body.innerHTML=`<img alt="${escapeHTML(name)}" src="${activePreviewUrl}">`;
+ else if(['txt','md','csv','json','log','html','xml'].includes(ext)){try{const text=await item.blob.text();body.innerHTML='<pre></pre>';body.querySelector('pre').textContent=text}catch(e){body.innerHTML='<p style="padding:20px">无法预览该文本文件，请下载查看。</p>'}}
+ else {body.innerHTML=`<div style="height:100%;display:grid;place-items:center;padding:25px;text-align:center"><div><div style="font-size:48px;margin-bottom:12px">📄</div><strong>${escapeHTML(name)}</strong><p style="color:#6b7280;font-size:13px;line-height:1.8">此格式暂不支持在网页内直接预览。<br>点击右上角“下载文件”，再使用 Word、WPS、PowerPoint 或对应应用打开。</p><button class="primary-btn" onclick="document.getElementById('filePreviewDownload').click()">下载文件</button></div></div>`}
+ document.getElementById('filePreviewBackdrop').classList.add('show');
+}
+async function deleteMaterial(id){if(!confirm('确定删除这个资料文件吗？'))return;const db=await dbPromise;if(!(typeof id==='string'&&id.startsWith('tmp_'))&&db){await new Promise(resolve=>{try{const tx=db.transaction('files','readwrite');tx.objectStore('files').delete(Number(id));tx.oncomplete=resolve;tx.onerror=resolve;tx.onabort=resolve}catch(e){resolve()}})}materialFiles=materialFiles.filter(f=>String(f.id)!==String(id));renderMaterials();showToast('资料已删除')}
+async function renderMaterials(){const list=document.getElementById('materialList');if(!list)return;const files=await getFiles();list.innerHTML=files.length?files.map(f=>`<div class="material-item"><span>📄</span><strong style="flex:1;overflow-wrap:anywhere">${escapeHTML(f.name)}</strong><span>${(f.size/1024/1024).toFixed(2)} MB</span><button class="material-open" onclick="openMaterial('${String(f.id).replace(/'/g, '')}')">打开</button><button class="material-delete" onclick="deleteMaterial('${String(f.id).replace(/'/g, '')}')">删除</button></div>`).join(''):'<div class="doc-list-empty">这门课程还没有上传资料。上传的文件只会显示在当前课程空间中。</div>'}
+document.querySelectorAll('.focus-modes button').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.focus-modes button').forEach(x=>x.classList.remove('active'));b.classList.add('active');initialSeconds=Number(b.dataset.min)*60;isFocusMode=b.dataset.min===25;document.getElementById('timerLabel').textContent=isFocusMode?'专注时间':(b.dataset.min===5?'短休息时间':'长休息时间');resetTimer()}));
+document.getElementById('applyCustomFocus').addEventListener('click',()=>{
+ const input=document.getElementById('customFocusMinutes');const mins=Number(input.value);
+ if(!Number.isInteger(mins)||mins<1||mins>180){showToast('请输入 1–180 之间的整数分钟');input.focus();return;}
+ document.querySelectorAll('.focus-modes button').forEach(x=>x.classList.remove('active'));
+ initialSeconds=mins*60;isFocusMode=true;document.getElementById('timerLabel').textContent='自定义专注时间';resetTimer();
+ showToast('已设置自定义专注时长：'+mins+' 分钟');
+});document.querySelectorAll('.course-tabs button').forEach(b=>b.addEventListener('click',()=>selectTab(b.dataset.tab)));document.querySelectorAll('.nav').forEach(b=>b.addEventListener('click',()=>switchPage(b.dataset.page)));
+document.getElementById('noteEditor').addEventListener('input',()=>{document.getElementById('saveState').textContent='有未保存的修改'});document.getElementById('fileInput').addEventListener('change',async e=>{const files=Array.from(e.target.files);for(const f of files)await storeFile(f);await renderMaterials();if(files.length)showToast('资料已添加：PDF、图片和文本可预览，Office 文件可下载打开');e.target.value=''});
+document.getElementById('filePreviewBackdrop').addEventListener('click',e=>{if(e.target.id==='filePreviewBackdrop')closeFilePreview()});document.addEventListener('keydown',e=>{if(e.key==='Escape')closeFilePreview()});
+let toastTimer;function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2300)}
+saveCourses();renderSchedule();renderCourseDirectory();renderTasks();renderNoteDocs();renderMaterials();renderRecentLearning();renderFocusStats();const now=new Date();document.getElementById('todayLine').textContent=`${now.getMonth()+1}月${now.getDate()}日 · 把大目标拆成小步骤，一点点完成就很好。`;
+</script>
+</body>
+</html>
