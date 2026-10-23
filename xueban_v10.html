@@ -193,7 +193,6 @@ button{cursor:pointer}
           <section class="card hero">
             <div class="eyebrow">YOUR STUDY SPACE</div>
             <h3 id="heroTitle">今天，先完成最重要的一件事</h3>
-            <p id="heroDesc">课程安排、课堂笔记、学习资料与专注计时，在一个地方顺手衔接起来。</p>
             <div class="hero-actions"><button class="hero-btn" onclick="startFocus()">开始专注  →</button><button class="hero-btn ghost" onclick="openCourse('微观经济学')">继续上次学习</button></div>
             <div class="hero-art">✦</div>
           </section>
@@ -375,11 +374,11 @@ function renderCourseDirectory(){
 function addDirectoryCourse(){
  const raw=prompt('请输入新学习项目名称：');if(raw===null||!raw.trim())return;const name=raw.trim();
  if(projects.includes(name)){showToast('这个项目已经存在，请直接点击项目卡片进入');return;}
- projects.push(name);saveProjects();renderCourseDirectory();openCourse(name,'notes');showToast('已创建独立学习项目；不会修改课表');
+ projects.push(name);saveProjects();renderCourseDirectory();openCourse(name,'notes');showToast('已创建独立学习项目');
 }
 async function removeDirectoryCourse(name){
  if(!projects.includes(name))return;
- if(!confirm(`确定删除学习项目“${name}”吗？只会删除这个项目及其笔记和资料，不会修改课表。`))return;
+ if(!confirm(`确定删除学习项目“${name}”吗？`))return;
  projects=projects.filter(n=>n!==name);saveProjects();
  Object.keys(notes).forEach(id=>{if(notes[id]?.course===name)delete notes[id]});saveNotes();
  const db=await dbPromise;
@@ -389,7 +388,7 @@ async function removeDirectoryCourse(name){
    if(projects.length)openCourse(projects[0],'notes');
    else {currentCourse='';document.getElementById('courseTitle').textContent='请选择一个项目';document.getElementById('noteEditor').value='';document.getElementById('noteDocTitle').value='';renderNoteDocs();renderMaterials();renderCourseDirectory();showToast('项目已删除');return;}
  }
- renderCourseDirectory();renderNoteDocs();renderMaterials();showToast('学习项目已删除；课表保持不变');
+ renderCourseDirectory();renderNoteDocs();renderMaterials();showToast('学习项目已删除');
 }
 document.getElementById('courseDirectory').addEventListener('click',e=>{
  const openBtn=e.target.closest('[data-project-open]');
